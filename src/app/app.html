@@ -1,0 +1,65 @@
+<main>
+  <mosaik-stack class="starter" orientation="vertical" fit="width">
+    <mosaik-stack class="starter__container" orientation="vertical" fit="width">
+      <mosaik-stack class="starter__card" orientation="vertical" fit="width">
+        <mosaik-stack class="starter__header" orientation="horizontal" verticalAlignment="top">
+          <mosaik-stack class="starter__intro" orientation="vertical">
+            <mosaik-text
+              class="starter__title"
+              role="heading"
+              aria-level="1"
+              text="Mosaik starter"
+            />
+            <mosaik-text
+              class="starter__description"
+              text="A small starting point for your next web app."
+              [wrap]="true"
+            />
+          </mosaik-stack>
+        </mosaik-stack>
+        <mosaik-stack
+          class="starter__content"
+          orientation="vertical"
+          horizontalAlignment="center"
+          verticalAlignment="center"
+          fit="width"
+        >
+          <mosaik-pulse class="starter__pulse" [count]="2" duration="3.6s" variant="neutral">
+            <mosaik-icon class="starter__icon" icon="sparkles" />
+          </mosaik-pulse>
+          <mosaik-stack
+            class="starter__message"
+            orientation="vertical"
+            horizontalAlignment="center"
+          >
+            <mosaik-text
+              class="starter__counter"
+              data-testid="counter"
+              aria-live="polite"
+              [text]="counterText()"
+              [wrap]="true"
+              alignment="center"
+            />
+            <mosaik-text
+              class="starter__hint"
+              text="This counter is local to your app."
+              [wrap]="true"
+              alignment="center"
+            />
+          </mosaik-stack>
+          <mosaik-button
+            class="starter__action"
+            data-testid="increment"
+            label="Add a click"
+            variant="primary"
+            appearance="solid"
+            size="small"
+            icon="plus"
+            iconSize="small"
+            (click)="increment()"
+          />
+        </mosaik-stack>
+      </mosaik-stack>
+    </mosaik-stack>
+  </mosaik-stack>
+</main>
