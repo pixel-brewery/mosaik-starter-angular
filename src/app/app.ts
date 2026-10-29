@@ -1,11 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
-import {
-  ButtonComponent,
-  IconComponent,
-  PulseComponent,
-  StackComponent,
-  TextComponent,
-} from '@pixel-brewery/mosaik-elements-angular';
+import { ButtonComponent } from '@pixel-brewery/mosaik-elements-angular/components/button';
+import { IconComponent } from '@pixel-brewery/mosaik-elements-angular/components/icon';
+import { PulseComponent } from '@pixel-brewery/mosaik-elements-angular/components/pulse';
+import { StackComponent } from '@pixel-brewery/mosaik-elements-angular/components/stack';
+import { TextComponent } from '@pixel-brewery/mosaik-elements-angular/components/text';
 
 /** The starter's application-owned counter and Mosaik composition. */
 @Component({

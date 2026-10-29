@@ -73,13 +73,11 @@ The repository's CI runs a clean `npm ci`, lint, typecheck, behavior tests and p
 
 CI only verifies the application. It does not publish packages, create release tags or deploy a website.
 
-## Current published-package limitations
+## Bundle size
 
-Mosaik's supported root entry points retain a large core component/style graph even for this small example. Production entry bundles are currently approximately 14–16 MB before transfer compression. This starter preserves the supported APIs; it does not patch dependencies or suppress component registration. See [the package-boundary issue](https://github.com/RueDeRennes/mosaik/issues/964).
+Each component is imported from its own entry, e.g. `@pixel-brewery/mosaik-elements-angular/components/button`, and the theme service from its own Foundation module. The initial production bundle of this starter is 815 kB of JavaScript (122 kB with gzip); an import from the package root entry is supported as well, but the component entries keep the application to the components it uses whatever the bundler.
 
-Published dependency source maps currently refer to sources absent from the installed packages, so tests can emit third-party source-map warnings. They do not prevent the verification commands from passing. See [the source-map issue](https://github.com/RueDeRennes/mosaik/issues/963).
-
-The Angular initial-bundle budget records the current published baseline: a warning above 16 MB and an error above 18 MB. It remains a growth check rather than a claim that the library is optimized. Angular upgrades should use the supported Angular update tooling.
+The Angular initial-bundle budget warns above 1 MB and fails above 1.5 MB, so an accidental root import shows up as a budget error. Angular upgrades should use the supported Angular update tooling.
 
 ## License
 
