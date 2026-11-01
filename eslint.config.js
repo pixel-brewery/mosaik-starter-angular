@@ -6,8 +6,19 @@ import tseslint from 'typescript-eslint';
 export default defineConfig([
   globalIgnores(['dist/**', 'out-tsc/**', '.angular/**', 'coverage/**']),
   {
+    files: ['tools/**/*.mjs'],
+    extends: [eslint.configs.recommended],
+    languageOptions: {
+      globals: { Buffer: 'readonly', console: 'readonly', process: 'readonly', URL: 'readonly' },
+    },
+  },
+  {
     files: ['src/**/*.ts'],
-    extends: [eslint.configs.recommended, tseslint.configs.recommended, angular.configs.tsRecommended],
+    extends: [
+      eslint.configs.recommended,
+      tseslint.configs.recommended,
+      angular.configs.tsRecommended,
+    ],
     processor: angular.processInlineTemplates,
   },
   {
