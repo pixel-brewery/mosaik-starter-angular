@@ -29,12 +29,14 @@ export function createDependabotAutomation(suppliedConfiguration, dependencies =
         return configuration;
     }
 
-    async function dispatch(file, ref, sha, inputKey = 'expected_head_sha') {
+    async function dispatch(file, ref, sha, inputKey = 'expected_head_sha', onlyIfBlocked = false) {
         const c = await config();
         const path = `repos/${c.repository}/actions/workflows/${file}`;
         const runs = await request('GET', `${path}/runs?head_sha=${sha}&per_page=100`);
         if (!Array.isArray(runs?.workflow_runs)) throw new Error('Unable to verify workflow continuation.');
         if (runs.workflow_runs.some((run) => run.head_sha === sha && run.event === 'workflow_dispatch')) return;
+        if (onlyIfBlocked && runs.workflow_runs.some((run) => run.head_sha === sha && run.event === 'pull_request' &&
+            run.conclusion !== 'action_required' && run.status !== 'waiting')) return;
         await request('POST', `${path}/dispatches`, { ref, inputs: { [inputKey]: sha } });
     }
 
@@ -161,6 +163,7 @@ export function createDependabotAutomation(suppliedConfiguration, dependencies =
         if (!Array.isArray(response?.workflow_runs)) throw new Error('Invalid verification inventory.');
         const runs = response.workflow_runs.filter((run) => run.workflow_id === workflow.id &&
             ['pull_request', 'workflow_dispatch'].includes(run.event) && run.head_sha === pull.head.sha && run.head_branch === pull.head.ref &&
+            !(run.event === 'pull_request' && (run.conclusion === 'action_required' || run.status === 'waiting')) &&
             sameRepository(run.repository, c) && sameRepository(run.head_repository, c)).sort((a, b) => b.id - a.id);
         const run = runs[0];
         if (!run || run.status !== 'completed' || run.conclusion !== 'success' || !Number.isSafeInteger(run.run_attempt)) return;
@@ -205,7 +208,10 @@ export function createDependabotAutomation(suppliedConfiguration, dependencies =
             return { status: 'updated', head: pull.head.sha };
         }
         const run = await verifiedRun(pull);
-        if (!run) return { status: 'waiting', reason: 'verification-required' };
+        if (!run) {
+            await dispatch(c.workflowFile, pull.head.ref, pull.head.sha, 'expected_head_sha', true);
+            return { status: 'waiting', reason: 'verification-required' };
+        }
         const currentPull = await request('GET', `${prefix}/pulls/${number}`);
         const currentRun = await request('GET', `${prefix}/actions/runs/${run.id}`);
         main = await request('GET', `${prefix}/branches/main`);
