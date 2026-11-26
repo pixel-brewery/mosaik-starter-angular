@@ -9,7 +9,7 @@ export default defineConfig([
     files: ['tools/**/*.mjs', '.github/scripts/**/*.mjs'],
     extends: [eslint.configs.recommended],
     languageOptions: {
-      globals: { Buffer: 'readonly', console: 'readonly', process: 'readonly', URL: 'readonly' },
+      globals: { Buffer: 'readonly', console: 'readonly', process: 'readonly', structuredClone: 'readonly', URL: 'readonly' },
     },
   },
   {
