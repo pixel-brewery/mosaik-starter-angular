@@ -6,10 +6,10 @@ import tseslint from 'typescript-eslint';
 export default defineConfig([
   globalIgnores(['dist/**', 'out-tsc/**', '.angular/**', 'coverage/**']),
   {
-    files: ['tools/**/*.mjs'],
+    files: ['tools/**/*.mjs', '.github/scripts/**/*.mjs'],
     extends: [eslint.configs.recommended],
     languageOptions: {
-      globals: { Buffer: 'readonly', console: 'readonly', process: 'readonly', URL: 'readonly' },
+      globals: { Buffer: 'readonly', console: 'readonly', process: 'readonly', structuredClone: 'readonly', URL: 'readonly' },
     },
   },
   {

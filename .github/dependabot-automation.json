@@ -1,0 +1,16 @@
+{
+  "repository": "pixel-brewery/mosaik-starter-angular",
+  "repositoryId": 1430734110,
+  "workflowFile": "ci.yml",
+  "workflowName": "CI",
+  "requiredJobs": [
+    "verify",
+    "Quality Gate"
+  ],
+  "postMergeWorkflows": [
+    {
+      "file": "ci.yml"
+    }
+  ],
+  "normalizeMosaikLockRoot": true
+}
