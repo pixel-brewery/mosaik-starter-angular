@@ -32,7 +32,7 @@ function fixture(change = {}) {
         if (route === 'actions/workflows/ci.yml') return { id: 11, path: '.github/workflows/ci.yml', name: 'Verify' };
         if (route.startsWith('actions/workflows/ci.yml/runs?')) {
             if (route.includes(refreshedSha) || route.includes(mergeSha)) return { workflow_runs: change.continuationRuns ?? [] };
-            return { workflow_runs: [run] };
+            return { workflow_runs: [run, ...(change.additionalRuns ?? []).map((item) => ({ ...run, ...item }))] };
         }
         if (route === 'actions/workflows/ci.yml/dispatches') return {};
         if (route === `commits/${headSha}/pulls?per_page=100`) return change.associations ?? [structuredClone(pull)];
@@ -80,6 +80,30 @@ test('never repeats an already dispatched continuation', async () => {
     const f = fixture({ stale: true, continuationRuns: [{ event: 'workflow_dispatch', head_sha: refreshedSha }] });
     await f.controller.reconcile(7);
     assert.equal(f.calls.filter((call) => call.endpoint.endsWith('/dispatches')).length, 0);
+});
+
+test('dispatches read-only verification for an unchanged approval-blocked head', async () => {
+    const f = fixture({ run: { conclusion: 'action_required' } });
+    assert.equal((await f.controller.reconcile(7)).reason, 'verification-required');
+    assert(f.calls.some((call) => call.endpoint.endsWith('/dispatches') && call.body.inputs.expected_head_sha === headSha));
+    assert(!f.calls.some((call) => call.endpoint.endsWith('/merge')));
+});
+
+test('waits for ordinary verification without creating a duplicate run', async () => {
+    const f = fixture({ run: { status: 'in_progress', conclusion: null } });
+    await f.controller.reconcile(7);
+    assert(!f.calls.some((call) => call.endpoint.endsWith('/dispatches')));
+});
+
+test('uses successful dispatch proof when a later PR attempt only requires approval', async () => {
+    const f = fixture({ run: { event: 'workflow_dispatch' }, additionalRuns: [{ id: 23, event: 'pull_request', conclusion: 'action_required' }] });
+    assert.equal((await f.controller.reconcile(7)).status, 'merged');
+});
+
+test('a later failed ordinary PR attempt still blocks an earlier successful dispatch', async () => {
+    const f = fixture({ run: { event: 'workflow_dispatch' }, additionalRuns: [{ id: 23, event: 'pull_request', conclusion: 'failure' }] });
+    assert.equal((await f.controller.reconcile(7)).reason, 'verification-required');
+    assert(!f.calls.some((call) => call.endpoint.endsWith('/merge')));
 });
 
 for (const [name, change] of [
